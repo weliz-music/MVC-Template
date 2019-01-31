@@ -95,23 +95,28 @@ See the code below for a better example:
   }
 ?>
 ```
-### 1.2) Built-in functions
-These functions are made to aid me in better development and for keeping things
-consistent across projects. These functions can be found in 
-`/app/libraries/globalFunctions.php` and can be extended with your own functions.
-These functions can be run from anywhere, in Controllers, Models and even your Views.
-I have the following functions for now:
-- navLink()
-  - This function is for creating navigation links in the navBar. 
-- actionLink()
-  - this function is for creating links anywhere in your application.
-- redirect()
-  - This should be self-explanatory.
-- isLoggedIn()
-  - I'm not even going to bother explaining this.
-- isAdmin()
-  - This also, should be obvious.
 
+### 1.2) Database
+Create a database with a name of your liking. Then run the following script in that
+database:
+```
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+CREATE TABLE `users` (
+ `id` int(11) NOT NULL,
+ `name` varchar(100) NOT NULL,
+ `email` varchar(100) NOT NULL,
+ `password` varchar(100) NOT NULL,
+ `level` varchar(5) NOT NULL DEFAULT 'user',
+ `activated` tinyint(1) NOT NULL DEFAULT '0',
+ `resetToken` varchar(100) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `users`
+ ADD PRIMARY KEY (`id`);
+ALTER TABLE `users`
+ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+```
 
 ### 1.3) Changing the config file
 Please copy the example config file to `/app/config/config.php`. This MVC will scream if
@@ -189,6 +194,23 @@ Filename: `TaskModel.php`
     // Your own supporting code.
   }
 ```
+
+### 1.5) Built-in functions
+These functions are made to aid me in better development and for keeping things
+consistent across projects. These functions can be found in 
+`/app/libraries/globalFunctions.php` and can be extended with your own functions.
+These functions can be run from anywhere, in Controllers, Models and even your Views.
+I have the following functions for now:
+- navLink()
+  - This function is for creating navigation links in the navBar. 
+- actionLink()
+  - this function is for creating links anywhere in your application.
+- redirect()
+  - This should be self-explanatory.
+- isLoggedIn()
+  - I'm not even going to bother explaining this.
+- isAdmin()
+  - This also, should be obvious.
 
 That is pretty much the gist of how you can use this MVC. If I've forgotten some things, 
 don't hesitate to shoot me a message.
