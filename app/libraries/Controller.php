@@ -27,12 +27,12 @@
      * Usage(In Controller):
      *    $this->render('user/index');
      */
-    public function render($view, $data = array()){
+    public function render($viewFile, $data = array()){
+      $view = 'Errors/index';
       // Check if the view exists
-      $view = ucfirst($view);
-      if(file_exists('../app/views/'.$view.'.php')){
-        // Require the layout, with the view inside.
-        require_once '../app/views/_layout.php';
+      if(file_exists('../app/views/'.$viewFile.'.php')){
+        $view = ucfirst($viewFile);
       }
+      require_once '../app/views/_layout.php';
     }
   }
