@@ -1,6 +1,6 @@
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h1 class="display-3"><?=$data['title'];?></h1>
-    <p class="lead"><?=$data['description'];?> - Version: <?=APP_VERSION;?></p>
+    <h1 class="display-3">About</h1>
+    <p class="lead">MVC Template by WeLiz Music - Version: <?=APP_VERSION;?></p>
   </div>
 </div>

@@ -14,8 +14,6 @@
     public function index(){
       $data = array(
         'title' => 'Home - '.APP_NAME,
-        'description' => 'Default landing page.'
-        //'url' => $this->checkUrl()
       );
       $this->render('Pages/index', $data);
     }
@@ -23,7 +21,6 @@
     public function about(){
       $data = array(
         'title' => 'About Us - '. APP_NAME,
-        'description' => 'MVC Framework made by WeLizMusic'
       );
       $this->render('Pages/about', $data);
     }
