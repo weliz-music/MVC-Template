@@ -32,9 +32,13 @@
    *
    * Usage: <?=actionLink('/pages/index', 'Home', 'btn btn-default', '_self');?>
    */
-  function actionLink($location = '', $text = 'submit', $class = '', $target = '_self'){
+  function actionLink($location = '', $text = 'submit', $class = '', $target = '_self', $root = TRUE){
     // Set url root.
-    $root = URL_ROOT;
+    if($root) {
+      $root = URL_ROOT;
+    } else {
+      $root = NULL;
+    }
 
     // Return the button with link
     return "<a href='{$root}{$location}' class='{$class}' target='{$target}'>{$text}</a>";
