@@ -28,6 +28,7 @@
      *    $this->render('user/index');
      */
     public function render($viewFile, $data = array()){
+      $viewFile = ucfirst($viewFile);
       $view = 'Errors/index';
       // Check if the view exists
       if(file_exists('../app/views/'.$viewFile.'.php')){

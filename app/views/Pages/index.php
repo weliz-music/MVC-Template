@@ -3,7 +3,7 @@
     <h1 class="display-3">mvcTemplate</h1>
     <p class="lead">
       mvcTemplate is a small and free framework to build great Websites and Web applications using PHP, HTML,
-      Bootstrap 4.0 and Jquery.
+      Bootstrap 4.1 and Jquery.
     </p>
   </div>
 </div>
@@ -15,7 +15,7 @@
       <p>
         Please read the instructions on the GitHub page.
       </p>
-      <?=actionLink('https://github.com/weliz-music/mvcTemplate#mvc-template-by-liquitox', 'GitHub', 'btn btn-block btn-primary', '_blank', FALSE);?>
+      <?=actionLink('https://github.com/weliz-music/MVC-Template#mvc-template-by-liquitox', 'GitHub', 'btn btn-block btn-primary', '_blank', FALSE);?>
     </div>
     <div class="col-md-6 my-3">
       <h3>About this template</h3>
