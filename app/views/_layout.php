@@ -35,11 +35,8 @@
           <?php if(isset($_SESSION['userId'])) : ?>
             <?=navLink('/users', $_SESSION['userName'], TRUE);?>
             <?=navLink('/users/logout', 'Logout');?>
-          <?php else {
-  : ?>
-            <?=navLink('/users/register', 'Register', TRUE);
-}
-?>
+          <?php else: ?>
+            <?=navLink('/users/register', 'Register', TRUE);?>
             <?=navLink('/users/login', 'Login', TRUE);?>
           <?php endif; ?>
         </ul>
