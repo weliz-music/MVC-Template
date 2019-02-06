@@ -1,7 +1,7 @@
 <?php
-  class Errors extends Controller{
-    public function index(){
-      if(empty($GLOBALS['error'])){
+  class Errors extends Controller {
+    public function index() {
+      if(empty($GLOBALS['error'])) {
         redirect('/');
       }
       $data['title'] = 'ERROR 404';

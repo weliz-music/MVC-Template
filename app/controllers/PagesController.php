@@ -7,27 +7,27 @@
    * This controller exists for displaying simple and preferably static content.
    */
   class Pages extends Controller {
-    public function __construct(){
+    public function __construct() {
     
     }
     
-    public function index(){
+    public function index() {
       $data = array(
         'title' => 'Home - '.APP_NAME,
       );
       $this->render('Pages/index', $data);
     }
   
-    public function about(){
+    public function about() {
       $data = array(
-        'title' => 'About Us - '. APP_NAME,
+        'title' => 'About Us - '.APP_NAME,
       );
       $this->render('Pages/about', $data);
     }
 
-    public function privacy(){
+    public function privacy() {
       $data = array(
-        'title' =>'Privacy notice - '. APP_NAME,
+        'title' =>'Privacy notice - '.APP_NAME,
       );
       $this->render('pages/privacy', $data);
     }
