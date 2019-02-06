@@ -1,4 +1,7 @@
 # MVC Template by @LiquitoX
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/weliz-music/MVC-Template/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/weliz-music/MVC-Template/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/weliz-music/MVC-Template/badges/build.png?b=master)](https://scrutinizer-ci.com/g/weliz-music/MVC-Template/build-status/master)
+
 This template is made by @LiquitoX (Me) to eliminate the need to create a framework 
 for every site I'm going to build, or that I'm currently building. I've made this 
 to form the building blocks for my upcoming projects and how to improve this MVC 
