@@ -4,7 +4,7 @@
   require APP_ROOT.'/libraries/MailSrc/Exception.php';
   require APP_ROOT.'/libraries/MailSrc/PHPMailer.php';
   require APP_ROOT.'/libraries/MailSrc/SMTP.php';
-  class Mail{
+  class Mail {
     // declare variables
     private $sendName = APP_NAME;
     private $sendAddress = EMAIL_ADDR;
@@ -22,7 +22,7 @@
      * Usage (In the Controller/Model):
      *    $mail = new Mail($sendName, $sendAddress, $recipientName, $recipientMail, $subject, $body, $altBody);
      */
-    public function __construct($recipientName, $recipientMail, $subject, $body, $altBody){
+    public function __construct($recipientName, $recipientMail, $subject, $body, $altBody) {
       $this->recipientName = $recipientName;
       $this->recipientMail = $recipientMail;
       $this->subject = $subject;
@@ -38,7 +38,7 @@
      * Usage (In the Controller/Model):
      *    $mail->send();
      */
-    public function send(){
+    public function send() {
       $mail = new PHPMailer(true);
 
       try {
@@ -58,14 +58,14 @@
 
 
         //Content
-        $mail->isHTML(true);                                  // Set email format to HTML
+        $mail->isHTML(true); // Set email format to HTML
         $mail->Subject = $this->subject;
         $mail->Body    = $this->body;
         $mail->AltBody = $this->altBody;
 
         $mail->send();
         return TRUE;
-      } catch (Exception $e) {
+      } catch(Exception $e) {
         return FALSE;
       }
     }
@@ -78,7 +78,7 @@
      * Usage (In the Controller/Model):
      *    $body = Mail::activationMail('John Doe', EMAIL_ADDR);
      */
-    public static function activationMail($userName){
+    public static function activationMail($userName) {
       return '
 <html>
   <head>
@@ -117,7 +117,7 @@
      * Usage (In the Controller/Model):
      *    $body = Mail::tokenMail('John Doe', $token, EMAIL_ADDR);
      */
-    public static function tokenMail($userName, $token){
+    public static function tokenMail($userName, $token) {
       return '
 <html>
   <head>
@@ -156,7 +156,7 @@
      * Usage (In the Controller/Model):
      *    $body = Mail::resetFailed('John Doe', EMAIL_ADDR);
      */
-    public static function resetFailed($userName){
+    public static function resetFailed($userName) {
       return '
 <html>
   <head>
@@ -201,7 +201,7 @@
      * Usage (In the Controller/Model):
      *    $body = Mail::passwordReset('John Doe', EMAIL_ADDR);
      */
-    public static function passwordReset($userName){
+    public static function passwordReset($userName) {
       return '
 <html>
   <head>
@@ -236,7 +236,7 @@
  * Usage (In the Controller/Model):
  *    $body = Mail::passwordReset('John Doe', EMAIL_ADDR);
  */
-    public static function passwordChange($userName){
+    public static function passwordChange($userName) {
       return '
 <html>
   <head>

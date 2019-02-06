@@ -21,17 +21,17 @@
      *
      * this function instantiates the url and the controller needed to display the information that is needed.
      */
-    public function __construct(){
+    public function __construct() {
       //print_r($this->getUrl());
       $url = $this->getUrl();
 
       // check if the Controller is empty
-      if(empty($url[0])){
+      if(empty($url[0])) {
         $url[0] = $this->currController;
       }
       
       // Look in controllers for the requested controller.
-      if (file_exists('../app/controllers/'.ucwords($url[0]).'Controller.php')){
+      if(file_exists('../app/controllers/'.ucwords($url[0]).'Controller.php')) {
         // If exists, make it the controller.
         $this->currController = ucwords($url[0]);
       } else {
@@ -50,9 +50,9 @@
       $this->currController = new $this->currController;
       
       // Check for second part of url for the function/method.
-      if(isset($url[1])){
+      if(isset($url[1])) {
         // check to see if method exists in controller.
-        if(method_exists($this->currController, $url[1])){
+        if(method_exists($this->currController, $url[1])) {
           $this->currMethod = $url[1];
         } else {
           // Set Controller to error.
@@ -79,8 +79,8 @@
      *
      * Usage: $this->getUrl();
      */
-    public function getUrl(){
-      if(isset($_GET['url'])){
+    public function getUrl() {
+      if(isset($_GET['url'])) {
         $url = rtrim($_GET['url'], '/');
         $url = filter_var($url, FILTER_SANITIZE_URL);
         $url = explode('/', $url);

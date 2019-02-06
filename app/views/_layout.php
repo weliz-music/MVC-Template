@@ -35,8 +35,11 @@
           <?php if(isset($_SESSION['userId'])) : ?>
             <?=navLink('/users', $_SESSION['userName'], TRUE);?>
             <?=navLink('/users/logout', 'Logout');?>
-          <?php else : ?>
-            <?=navLink('/users/register', 'Register', TRUE);?>
+          <?php else {
+  : ?>
+            <?=navLink('/users/register', 'Register', TRUE);
+}
+?>
             <?=navLink('/users/login', 'Login', TRUE);?>
           <?php endif; ?>
         </ul>
@@ -51,13 +54,13 @@
   </div>
 
   <!-- Load in jQuery -->
-  <script src="<?=URL_ROOT;?>/public/js/jquery.min.js"></script>
+  <script src="<?=URL_ROOT; ?>/public/js/jquery.min.js"></script>
   <!-- Load in popper.js -->
-  <script src="<?=URL_ROOT;?>/public/js/popper.min.js"></script>
+  <script src="<?=URL_ROOT; ?>/public/js/popper.min.js"></script>
   <!-- Load in Bootstrap.min.js -->
-  <script src="<?=URL_ROOT;?>/public/js/bootstrap.min.js"></script>
+  <script src="<?=URL_ROOT; ?>/public/js/bootstrap.min.js"></script>
   <!-- Load in custom javascript -->
-  <script src="<?=URL_ROOT;?>/public/js/custom.js"></script>
+  <script src="<?=URL_ROOT; ?>/public/js/custom.js"></script>
 
   </body>
 </html>

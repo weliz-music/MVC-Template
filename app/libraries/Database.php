@@ -6,7 +6,7 @@
    * prepared statements.
    * PDO Database class.
    */
-  class Database{
+  class Database {
     // Set default values to the defined values in config.php.
     private $host = DB_HOST;
     private $user = DB_USER;
@@ -23,7 +23,7 @@
      *
      * This function creates and returns the database object.
      */
-    public function __construct(){
+    public function __construct() {
       // Set DSN
       $dsn = 'mysql:host='.$this->host.';dbname='.$this->dbName;
       $options = array(
@@ -32,9 +32,9 @@
       );
       
       // Create PDO Instance.
-      try{
+      try {
         $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
-      } catch(PDOException $e){
+      } catch(PDOException $e) {
         $this->error = $e->getMessage();
         echo $this->error;
       }
@@ -48,7 +48,7 @@
      * Usage (In the Controller/Model):
      *    $this->db->query('SELECT * FROM users WHERE id = :id');
      */
-    public function query($sql){
+    public function query($sql) {
       $this->stmt = $this->dbh->prepare($sql);
     }
     
@@ -60,9 +60,9 @@
      * Usage (In the Controller/Model):
      *    $this->db->bind(':id', $userId);
      */
-    public function bind($param, $value, $type = NULL){
-      if(is_null($type)){
-        switch(true){
+    public function bind($param, $value, $type = NULL) {
+      if(is_null($type)) {
+        switch(true) {
           case is_int($value):
             $type = PDO::PARAM_INT;
             break;
@@ -87,7 +87,7 @@
      * Usage (In the Controller/Model):
      *    $this->db->execute();
      */
-    public function execute(){
+    public function execute() {
       return $this->stmt->execute();
     }
     
@@ -99,7 +99,7 @@
      * Usage (In the Controller/Model):
      *    $resultsArray = $this->db->fetchAll();
      */
-    public function fetchAll(){
+    public function fetchAll() {
       $this->execute();
       return $this->stmt->fetchAll(PDO::FETCH_OBJ);
     }
@@ -112,7 +112,7 @@
      * Usage (In the Controller/Model):
      *    $user = $this->db->fetchSingle();
      */
-    public function fetchSingle(){
+    public function fetchSingle() {
       $this->execute();
       return $this->stmt->fetch(PDO::FETCH_OBJ);
     }
@@ -125,7 +125,7 @@
      * Usage (In the Controller/Model):
      *    $rowCount = $this->db->rowCount();
      */
-    public function rowCount(){
+    public function rowCount() {
       return $this->stmt->rowCount();
     }
     

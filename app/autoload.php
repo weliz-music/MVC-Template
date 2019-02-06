@@ -16,6 +16,6 @@
   require_once 'libraries/globalFunctions.php';
 
   // Autoload all needed Libraries
-  spl_autoload_register(function($className){
+  spl_autoload_register(function($className) {
     require_once 'libraries/'.$className.'.php';
   });

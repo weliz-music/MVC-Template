@@ -7,7 +7,7 @@
    *
    * Usage: <?=navLink('/pages/index', 'Home', TRUE);?>
    */
-  function navLink($location = '', $text, $beActive = FALSE){
+  function navLink($location = '', $text, $beActive = FALSE) {
     // Set url root.
     $root = URL_ROOT;
 
@@ -15,7 +15,7 @@
     $url = '/'.implode('/', array_slice(explode('/', explode('?', $_SERVER['REQUEST_URI'])[0]), 1, 2));
 
     // Check if url and location are the same, and if $beActive is set.
-    if($url == $location && $beActive){
+    if($url == $location && $beActive) {
       $active = ' active';
     } else {
       $active = '';
@@ -32,7 +32,7 @@
    *
    * Usage: <?=actionLink('/pages/index', 'Home', 'btn btn-default', '_self');?>
    */
-  function actionLink($location = '', $text = 'submit', $class = '', $target = '_self', $root = TRUE){
+  function actionLink($location = '', $text = 'submit', $class = '', $target = '_self', $root = TRUE) {
     // Set url root.
     if($root) {
       $root = URL_ROOT;
@@ -52,7 +52,7 @@
    *
    * Usage: redirect('/pages/index');
    */
-  function redirect($location){
+  function redirect($location) {
     header('Location: '.URL_ROOT.$location);
   }
 
@@ -63,8 +63,8 @@
    *
    * Usage: if(isLoggedIn()){// Code}
    */
-  function isLoggedIn(){
-    if(isset($_SESSION['userId'])){
+  function isLoggedIn() {
+    if(isset($_SESSION['userId'])) {
       return TRUE;
     } else {
       return FALSE;
@@ -78,8 +78,8 @@
    *
    * Usage: if(isAdmin()){// Code}
    */
-  function isAdmin(){
-    if($_SESSION['userLevel'] == 'admin'){
+  function isAdmin() {
+    if($_SESSION['userLevel'] == 'admin') {
       return TRUE;
     } else {
       return FALSE;
@@ -98,21 +98,21 @@
    * To display the flashMessage (In the View):
    *     <?=flash('logoutSuccess');?>
    */
-  function flash($name = '', $message = '', $class = 'alert alert-success'){
-    if(!empty($name)){
-      if(!empty($message) && empty($_SESSION[$name])){
-        if(!empty($_SESSION[$name])){
+  function flash($name = '', $message = '', $class = 'alert alert-success') {
+    if(!empty($name)) {
+      if(!empty($message) && empty($_SESSION[$name])) {
+        if(!empty($_SESSION[$name])) {
           unset($_SESSION[$name]);
         }
 
-        if(!empty($_SESSION[$name. '_class'])){
-          unset($_SESSION[$name. '_class']);
+        if(!empty($_SESSION[$name.'_class'])) {
+          unset($_SESSION[$name.'_class']);
         }
 
         $_SESSION[$name] = $message;
-        $_SESSION[$name. '_class'] = $class;
-      } elseif(empty($message) && !empty($_SESSION[$name])){
-        $class = !empty($_SESSION[$name. '_class']) ? $_SESSION[$name. '_class'] : '';
+        $_SESSION[$name.'_class'] = $class;
+      } elseif(empty($message) && !empty($_SESSION[$name])) {
+        $class = !empty($_SESSION[$name.'_class']) ? $_SESSION[$name.'_class'] : '';
         echo '
           <div class="'.$class.'" id="msg-flash" role="alert">
             '.$_SESSION[$name].'
@@ -121,7 +121,7 @@
             </button>
           </div>';
         unset($_SESSION[$name]);
-        unset($_SESSION[$name. '_class']);
+        unset($_SESSION[$name.'_class']);
       }
     }
   }

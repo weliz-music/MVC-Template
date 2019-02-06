@@ -3,7 +3,7 @@
    * Base controller.
    * This loads the models and views
    */
-  class Controller{
+  class Controller {
     /*
      * model()
      *
@@ -11,7 +11,7 @@
      *
      * Usage: __construct(){$this->model = model('Users');}
      */
-    public function model($model){
+    public function model($model) {
       // require model file
       require_once '../app/models/'.$model.'Model.php';
       
@@ -27,11 +27,11 @@
      * Usage(In Controller):
      *    $this->render('user/index');
      */
-    public function render($viewFile, $data = array()){
+    public function render($viewFile, $data = array()) {
       $viewFile = ucfirst($viewFile);
       $view = 'Errors/index';
       // Check if the view exists
-      if(file_exists('../app/views/'.$viewFile.'.php')){
+      if(file_exists('../app/views/'.$viewFile.'.php')) {
         $view = ucfirst($viewFile);
       }
       require_once '../app/views/_layout.php';
