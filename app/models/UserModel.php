@@ -29,15 +29,13 @@
       // Execute the query
       if($this->db->execute()) {
         // Send activation mail
-        $sender = APP_NAME;
-        $senderAddress = EMAIL_ADDR;
         $recipient = $data['userName'];
         $recipientMail = $data['userEmail'];
         $subject = 'Activate your account.';
-        $body = Mail::activationMail($recipient, EMAIL_ADDR);
+        $body = Mail::activationMail($recipient);
         $altbody = strip_tags($body);
 
-        $mail = new Mail($sender, $senderAddress, $recipient, $recipientMail, $subject, $body, $altbody);
+        $mail = new Mail($recipient, $recipientMail, $subject, $body, $altbody);
         $mail->send();
         flash('register_success', 'We have sent you an email with activation instructions!');
         return TRUE;
@@ -58,14 +56,19 @@
       $this->db->query('SELECT * FROM users WHERE email = :login OR name = :login');
       $this->db->bind(':login', $login);
 
+      // Get the user
       $user = $this->db->fetchSingle();
 
-      $hashedPassword = $user->password;
-      if(password_verify($password, $hashedPassword)) {
-        return $user;
-      } else {
-        return FALSE;
+      // Check if the user exists.
+      if($user) {
+        $hashedPassword = $user->password;
+        if (password_verify($password, $hashedPassword)) {
+          // Return the user.
+          return $user;
+        }
       }
+      // If nothing is found, return false.
+      return FALSE;
     }
 
     /*

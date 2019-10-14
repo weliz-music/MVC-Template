@@ -62,7 +62,7 @@
         $mail->Subject = $this->subject;
         $mail->Body    = $this->body;
         $mail->AltBody = $this->altBody;
-
+        //die(print_r($mail));
         $mail->send();
         return TRUE;
       } catch(Exception $e) {
