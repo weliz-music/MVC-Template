@@ -1,39 +1,44 @@
 <?php if(empty($data['viewPart'])): ?>
-<div class="row">
-  <div class="col-md-6 mx-auto">
-    <div class="card card-body bg-light mt-5">
-      <?=flash('register_success'); ?>
-      <?=flash('logout_success'); ?>
-      <?=flash('userDeleteSuccess'); ?>
-      <?=flash('resetPasswordSuccess'); ?>
-      <h2>Login</h2>
-      <p>Please fill out your credentials</p>
-      <form action="<?=URL_ROOT; ?>/users/login" method="POST">
-        <div class="form-group">
-          <label for="userLogin">Username or Email address:<sup>*</sup></label>
-          <input type="text" class="form-control <?php echo (!empty($data['userLoginError'])) ? 'is-invalid' : '' ?>"
-                 name="userLogin" id="userLogin" value="<?=$data['userLogin']; ?>" autofocus>
-          <span class="invalid-feedback"><?=$data['userLoginError']; ?></span>
-        </div>
-        <div class="form-group">
-          <label for="userPass">Password:<sup>*</sup></label>
-          <input type="password" class="form-control <?php echo (!empty($data['userPassError'])) ? 'is-invalid' : '' ?>"
-                 name="userPass" id="userPass" value="<?=$data['userPass']; ?>">
-          <span class="invalid-feedback"><?=$data['userPassError']; ?></span>
-        </div>
-        <div class="row">
-          <div class="col">
-            <input type="submit" class="btn btn-success btn-block" value="Login">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <div class="card card-body bg-light mt-5">
+        <?=flash('register_success'); ?>
+        <?=flash('logout_success'); ?>
+        <?=flash('userDeleteSuccess'); ?>
+        <?=flash('resetPasswordSuccess'); ?>
+        <h2>Login</h2>
+        <p>Please fill out your credentials</p>
+        <form action="<?=URL_ROOT; ?>/users/login" method="POST">
+          <div class="form-group">
+            <label for="userLogin">Username or Email address:<sup>*</sup></label>
+            <input type="text" class="form-control <?php echo (!empty($data['userLoginError'])) ? 'is-invalid' : '' ?>"
+                   name="userLogin" id="userLogin" value="<?=$data['userLogin']; ?>" autofocus autocomplete="username">
+            <span class="invalid-feedback"><?=$data['userLoginError']; ?></span>
           </div>
-          <div class="col">
-            <?=actionLink('/users/register', 'No account yet?', 'btn btn-primary btn-block'); ?>
+          <div class="form-group">
+            <label for="userPass">Password:<sup>*</sup></label>
+            <div class="input-group mb-3">
+              <input type="password" class="form-control <?php echo (!empty($data['userPassError'])) ? 'is-invalid' : '' ?>"
+                     name="userPass" id="userPass" value="<?=$data['userPass']; ?>" autocomplete="current-password">
+              <div class="input-group-append" onclick="passToggle()" style="cursor: pointer;">
+                <span class="input-group-text"><img id="pw-toggle" src="../public/assets/hide.png" alt="" height="16"></span>
+              </div>
+              <span class="invalid-feedback"><?=$data['userPassError']; ?></span>
+            </div>
           </div>
-        </div>
-        <?=actionLink('/users/resetPassword', 'Forgot password?', 'btn btn-outline-secondary btn-block mt-3'); ?>
-      </form>
+          <div class="row">
+            <div class="col">
+              <input type="submit" class="btn btn-success btn-block" value="Login">
+            </div>
+            <div class="col">
+              <?=actionLink('/users/register', 'No account yet?', 'btn btn-primary btn-block'); ?>
+            </div>
+          </div>
+          <?=actionLink('/users/resetPassword', 'Forgot password?', 'btn btn-outline-secondary btn-block mt-3'); ?>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 <?php elseif($data['viewPart'] == 'noActivation'): ?>
   <div class="row">
     <div class="col-md-6 mx-auto">

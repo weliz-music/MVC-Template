@@ -62,7 +62,7 @@
         $mail->Subject = $this->subject;
         $mail->Body    = $this->body;
         $mail->AltBody = $this->altBody;
-        //die(print_r($mail));
+
         $mail->send();
         return TRUE;
       } catch(Exception $e) {
@@ -263,6 +263,41 @@
   </body>
 </html>';
     }
+    /*
+     * tfa()
+     *
+     * This function sets the body of the mail when 2FA is enabled.
+     */
+    public static function tfa($userName, $tfaToken){
+      return '
+<html>
+  <head>
+    <style>
+      body{
+        margin:0px;
+        padding:0px;
+      }
+      .red{
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h3>Authentication code.</h3>
+      <p>
+        Hello, '.$userName.'. Someone is trying to access your Budget Tracker account.<br>
+        If this is you, please enter the following code in your confirmation field. <br><br>
+        '.$tfaToken.'<br><br>
+        If this was not you, we strongly recommend you to reset your password, as your account may have been compromised.
+      <p>Kind regards,</p>
+      <p>~ LiquitoX</p>
+      </div>
+  </body>
+</html>';
+    }
   }
+
+
 
 

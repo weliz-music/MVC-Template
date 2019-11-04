@@ -64,7 +64,7 @@
    * Usage: if(isLoggedIn()){// Code}
    */
   function isLoggedIn() {
-    if(isset($_SESSION['userId'])) {
+    if(isset($_SESSION['loggedIn'])) {
       return TRUE;
     } else {
       return FALSE;

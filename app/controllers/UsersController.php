@@ -33,7 +33,15 @@
         'description' => 'You can change various settings on this page.',
         'userName' => $_SESSION['userName'],
         'userEmail' => $_SESSION['userEmail'],
+        'login' => json_decode(file_get_contents('https://extreme-ip-lookup.com/json/'.$_SERVER['REMOTE_ADDR'])),
       );
+      if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $data['ip'] = $_SERVER['HTTP_CLIENT_IP'];
+      } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $data['ip'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      } else {
+        $data['ip'] = $_SERVER['REMOTE_ADDR'];
+      }
 
       // Render the view.
       $this->render('users/index', $data);
@@ -45,6 +53,11 @@
      * Page for the users to register themselves on this site.
      */
     public function register() {
+      // Check if the user is already logged in.
+      if(isLoggedIn()){
+        redirect('/accounts');
+      }
+
       // Initialize default data.
       $data = array(
         'title' => 'Register - '.APP_NAME,
@@ -113,7 +126,8 @@
         }
 
         // Make sure that the errors are empty.
-        if(empty($data['userNameError']) && empty($data['userEmailError']) && empty($data['userPassError']) && empty($data['userPassConfirmError'])) {
+        if(empty($data['userNameError']) && empty($data['userEmailError']) && empty($data['userPassError']) &&
+          empty($data['userPassConfirmError']) && empty($data['userPrivacyError'])) {
           // Validated.
           // Hash password.
           $data['userPass'] = password_hash($data['userPass'], PASSWORD_DEFAULT);
@@ -135,6 +149,11 @@
      * This page will log the user into the app and show relevant error messages.
      */
     public function login() {
+      // Check if the user is already logged in.
+      if(isLoggedIn()){
+        redirect('/users');
+      }
+
       // Initialize default data
       $data = array(
         'title' => 'Login - '.APP_NAME,
@@ -174,7 +193,7 @@
             } else {
               // Create session.
               $this->userModel->createSession($user);
-              redirect('/users');
+              redirect('/users/auth');
             }
           } else {
             $data['userLoginError'] = "Wrong username and/or password!";
@@ -184,6 +203,65 @@
       }
       $this->render('users/login', $data);
     }
+
+    /*
+     * auth()
+     *
+     * This page is made for users to auth with 2FA.
+     */
+    public function auth(){
+      // Check if the user is logged in.
+      if(empty($_SESSION['userId'])){
+        redirect('/users/login');
+        return;
+      }
+      // Check if the user itself has completed the authentication step.
+      if(isLoggedIn()){
+        redirect('/users');
+        return;
+      }
+      // Send the authentication email if the authToken is empty.
+      $tfaToken = $this->userModel->getTfaToken()->tfaToken;
+      if(empty($tfaToken)){
+        $this->userModel->sendTfaMail();
+      }
+      // Initialize data.
+      $data = array(
+        'title' => 'Authenticate user -'. APP_NAME,
+        'auth' => '',
+        'authError' => ''
+      );
+
+      // Check for POST
+      if($_SERVER['REQUEST_METHOD'] == "POST") {
+        // Process the form
+
+        // Sanitize POST Data
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        // Update $data.
+        $data['auth'] = $_POST['auth'];
+
+        // Validate the auth code.
+        if(empty($data['auth'])){
+          $data['authError'] = 'Authentication code cannot be empty!';
+        } elseif(strlen($data['auth']) > 8){
+          $data['authError'] = 'Authentication code cannot be larger then 8 characters!';
+        }
+
+        // Check if the errors are empty
+        if(empty($data['authError'])){
+          if($this->userModel->auth($data['auth'])){
+            redirect('/users');
+          }
+          redirect('/users/login');
+        }
+      }
+
+      // Render the view
+      $this->render('users/auth', $data);
+    }
+
 
     /*
      * /Users/logout
@@ -448,11 +526,8 @@
 
         // Check if the errors are empty
         if(empty($data['userEmailError']) && empty($data['userPassError']) && empty($data['userConfirmError'])) {
-          // Delete the user and redirect to the login page.
-          if($this->userModel->delete($_SESSION['userId'])) {
+          if ($this->userModel->delete($_SESSION['userId'])) {
             redirect('/users/login');
-          } else {
-            die('You can\'t even delete shit properly, stop coding!');
           }
         }
       }
@@ -649,6 +724,29 @@
       $this->render('users/resetPassword', $data);
     }
 
+
+    /*
+     * loginHistory()
+     *
+     * This page shows all login history of the user.
+     */
+    public function loginHistory(){
+      // Check if the user is logged in.
+      if(!isLoggedIn()){
+        redirect('/users/login');
+      }
+
+      // Initialize the required data.
+      $data = array(
+        'title' => 'Past login history - '.APP_NAME,
+        'logins' => $this->userModel->getPastLogins($_SESSION['userId']),
+      );
+
+      // Render the view.
+      $this->render('Users/loginHistory', $data);
+    }
+
+
     /*
      * requestData()
      *
@@ -669,5 +767,43 @@
 
       // Render the view
       $this->render('users/requestData', $data);
+    }
+
+
+    /*
+     * settings()
+     *
+     * This page is so that users can change various settings.
+     */
+    public function settings(){
+      // Check if the user is logged in.
+      if(!isLoggedIn()){
+        redirect('/users/login');
+      }
+
+      // Initialize the data array.
+      $data = array(
+        'title' => 'User Settings - ' . APP_NAME,
+        'user_settings' => $this->userModel->getSettings()
+      );
+
+      // Check for POST
+      if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Process form
+
+        // Sanitize POST Data
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        // Update user settings.
+        if($this->userModel->updateSettings()){
+          // Set flash message.
+          flash('message', 'Settings Saved!');
+          // Update settings in $data.
+          $data['user_settings'] = $this->userModel->getSettings();
+        }
+      }
+
+      // Render the view.
+      $this->render('users/settings', $data);
     }
   }

@@ -71,6 +71,64 @@
       return FALSE;
     }
 
+
+    /*
+     * addToHistory()
+     *
+     * This function adds a few values to the logins table in the database.
+     */
+    function addToHistory($id){
+      // Set query.
+      $this->db->query('INSERT INTO logins (userId, ip, country, city) VALUES (:userId, :ip, :country, :city)');
+      // Get the data
+      // Set ip
+      if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+      } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+      }
+      $loginData = json_decode(file_get_contents("http://api.ipstack.com/".$ip.'&access_key=2436a92b33638c51f3d14bc2b36ad5d0?fields=ip,country_name,city'));
+      //die(print_r($loginData));
+      // Bind the values.
+      $bindArray = array(
+        ':userId' => $id,
+        ':ip' => $loginData->ip,
+        ':country' => $loginData->country_name,
+        ':city' => $loginData->city,
+      );
+      foreach ($bindArray as $bind => $value){
+        $this->db->bind($bind, $value);
+      }
+      // Execute the query.
+      if($this->db->execute()){
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+
+    /*
+     * getPastLogins()
+     *
+     * This function gets all past login history from the specified user.
+     */
+    function getPastLogins($userId){
+      // Set query.
+      $this->db->query('SELECT * FROM logins WHERE userId = :userId ORDER BY id DESC');
+      // Bind the value.
+      $this->db->bind(':userId', $userId);
+      // Store the query in a value.
+      $logins = $this->db->fetchAll();
+      // Check and return.
+      if($logins){
+        return $logins;
+      }
+      return FALSE;
+    }
+
+
     /*
      * findByEmail()
      *
@@ -196,13 +254,106 @@
      *    $this->model->createSession($user);
      */
     public function createSession($user) {
+      if(!$this->getUserSetting('tfa_auth', $user->id)){
+        //die('something went wrong!');
+        $_SESSION['loggedIn'] = TRUE;
+        // Add login to login history.
+        $this->addToHistory($user->id);
+      }
+
+      // Set session variables.
       $_SESSION['userId'] = $user->id;
       $_SESSION['userName'] = $user->name;
       $_SESSION['userEmail'] = $user->email;
       $_SESSION['userLevel'] = $user->level;
+      return;
     }
 
-    // Check if the password given is correct.
+    /*
+     * auth()
+     *
+     * This function will authenticate the user.
+     */
+    public function auth($tfaToken){
+      // Set query
+      $this->db->query('SELECT name FROM users WHERE id = :id AND tfaToken = :tfaToken');
+      // Bind values
+      $this->db->bind(':id', $_SESSION['userId']);
+      $this->db->bind(':tfaToken', $tfaToken);
+      // Store value
+      $result = $this->db->fetchSingle();
+      // Delete the record from the database.
+      $this->db->query('UPDATE users SET tfaToken = NULL WHERE id = :id');
+      $this->db->bind(':id', $_SESSION['userId']);
+      $this->db->execute();
+
+      if($result){
+        // Add login to login history.
+        $this->addToHistory($_SESSION['userId']);
+
+        // Set other session variables.
+        $_SESSION['loggedIn'] = TRUE;
+        return TRUE;
+      }
+      flash('userDeleteSuccess', 'There was an error with your Authentication code. <br>Please retry logging in.', 'alert alert-danger');
+      return FALSE;
+    }
+
+    /*
+     * getTfaToken()
+     *
+     * This function will fetch the 2 factor authentication token from the database. If there is none, return false.
+     */
+    public function getTfaToken(){
+      // Set query
+      $this->db->query('SELECT tfaToken FROM users WHERE id = :id');
+      // Bind value
+      $this->db->bind(':id', $_SESSION['userId']);
+      // Execute
+      $tfaToken = $this->db->fetchSingle();
+      // Check and return.
+      if($tfaToken){
+        return $tfaToken;
+      }
+      return FALSE;
+    }
+
+    /*
+     * sendTfaMail()
+     *
+     * This function will send the 2 factor authentication mail.
+     */
+    public function sendTfaMail(){
+      // Set 2FA code.
+      $tfaToken = strtoupper(bin2hex(openssl_random_pseudo_bytes(4)));
+      // Send activation mail
+      $recipient = $_SESSION['userName'];
+      $recipientMail = $_SESSION['userEmail'];
+      $subject = 'Authentication code.';
+      $body = Mail::tfa($recipient, $tfaToken);
+      $altbody = strip_tags($body);
+
+      // Create and send the mail.
+      $mail = new Mail($recipient, $recipientMail, $subject, $body, $altbody);
+      $mail->send();
+
+      // Set query
+      $this->db->query('UPDATE users SET tfaToken = :tfaToken WHERE id = :id');
+      // Bind values.
+      $this->db->bind(':tfaToken', $tfaToken);
+      $this->db->bind(':id', $_SESSION['userId']);
+
+      if($this->db->execute()){
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    /*
+     * checkPassword()
+     *
+     * This function will check if the given password is correct.
+     */
     public function checkPassword($pass) {
       $this->db->query('SELECT password FROM users where email = :email');
       $this->db->bind(':email', $_SESSION['userEmail']);
@@ -217,7 +368,11 @@
       }
     }
 
-    // Change the user's password
+    /*
+     * changePassword()
+     *
+     * This function will change the user's password.
+     */
     public function changePassword($userId, $password) {
       // Hash user Password
       $password = password_hash($password, PASSWORD_DEFAULT);
@@ -246,7 +401,11 @@
       }
     }
 
-    // Change the user's email
+    /*
+     * changeEmail()
+     *
+     * This function will change the user's email address.
+     */
     public function changeEmail($userId, $email) {
       $this->db->query('UPDATE users SET email = :email WHERE id = :id');
 
@@ -263,7 +422,11 @@
       }
     }
 
-    // Change the user's username
+    /*
+     * changeUserName()
+     *
+     * This function will change the user's name.
+     */
     public function changeUserName($userId, $userName) {
       $this->db->query('UPDATE users SET name = :userName WHERE id = :id');
 
@@ -280,8 +443,12 @@
       }
     }
 
-    // Delete the current user. Please note that when you expand this mvc project, you also
-    // should add more deletion queries to this function, so that all userData gets deleted!
+
+    /*
+     * delete()
+     *
+     * This function will delete the user.
+     */
     public function delete($userId) {
       $this->db->query('DELETE FROM users WHERE id = :id');
 
@@ -301,7 +468,11 @@
       }
     }
 
-    // Add resetToken to the user's data and send the email to the user.
+    /*
+     * sendToken()
+     *
+     * This function will send a resetToken for if the user has forgotten / needs to reset their password.
+     */
     public function sendToken($userEmail, $userName) {
       // Create the random token
       $resetToken = bin2hex(random_bytes(50));
@@ -329,8 +500,11 @@
       }
     }
 
-    // Check the token with username and email, if this is not correct, the token will be deleted and the user needs to
-    // start again with the process.
+    /*
+     * checkToken()
+     *
+     * This function will check if the given resetToken is correct. If it is not, it will restart the process.
+     */
     public function checkToken($token, $userName, $userEmail) {
       $this->db->query('SELECT * FROM users WHERE resetToken = :token AND name = :userName AND email = :userEmail');
       $this->db->bind(':token', $token);
@@ -349,7 +523,11 @@
       }
     }
 
-    // Remove the resetToken from the associated user account.
+    /*
+     * removeToken()
+     *
+     * This function will remove the resetToken from the database.
+     */
     public function removeToken($token) {
       // Get the user from the token for a failed email.
       $this->db->query('SELECT * FROM users WHERE resetToken = :token');
@@ -388,7 +566,11 @@
       }
     }
 
-    // Check if the token exists in the database.
+    /*
+     * checkTokenDb()
+     *
+     * This function will check of the given token exists in the database.
+     */
     public function checkTokenDb($token) {
       $this->db->query('SELECT * FROM users WHERE resetToken = :token');
       $this->db->bind(':token', $token);
@@ -404,7 +586,11 @@
       }
     }
 
-    // Reset the password
+    /*
+     * resetPassword()
+     *
+     * This function will reset the password of the user.
+     */
     public function resetPassword($password, $token, $userEmail, $userName) {
       $this->db->query('UPDATE users SET password = :password WHERE resetToken = :token');
       $this->db->bind(':password', $password);
@@ -436,7 +622,11 @@
       }
     }
 
-    // Check if the user is activated or not.
+    /*
+     * isActivated()
+     *
+     * This will check if the user who's trying to log in, has been activated already.
+     */
     public function isActivated($login) {
       $this->db->query('SELECT activated, password FROM users WHERE name = :login OR email = :login');
       $this->db->bind(':login', $login);
@@ -454,7 +644,11 @@
       return FALSE;
     }
 
-    // Check if password corresponds with the username
+    /*
+     * activatePass()
+     *
+     * This function checks if the given user and password in the activation process are correct.
+     */
     public function activatePass($user, $pass) {
       $hashedPass = $user->password;
       if(password_verify($pass, $hashedPass)) {
@@ -463,7 +657,11 @@
       return FALSE;
     }
 
-    // Activate the account.
+    /*
+     * activateAccount()
+     *
+     * This function will update the account in the database to reflect that the account is now activated.
+     */
     public function activateAccount($userName) {
       $this->db->query('UPDATE users SET activated = :value WHERE name = :userName');
       $this->db->bind(':value', TRUE);
@@ -481,12 +679,154 @@
      * you are planning to use in your application.
      */
     public function fetchAllUserData($userId) {
+      // Get the user first.
       $this->db->query('SELECT name, email, created_at FROM users WHERE id = :id');
       $this->db->bind(':id', $userId);
       $user['user'] = $this->db->fetchSingle();
-      if($user) {
+      if($user){
+        // Logins
+        $this->db->query('SELECT ip, country, city, date FROM logins WHERE userId = :userId');
+        $this->db->bind(':userId', $_SESSION['userId']);
+        $user['logins'] = $this->db->fetchAll();
+
         return $user;
       }
       return FALSE;
+    }
+
+
+    /*
+     * getUserSetting()
+     *
+     * This function will get a specific setting.
+     */
+    public function getUserSetting($name, $userId){
+      // check for new settings first and update them.
+      $_SESSION['userId'] = $userId;
+      $this->setDefaultSettings();
+      // Set query.
+      $this->db->query('SELECT value FROM settings WHERE name = :name AND userId = :userId');
+      // Bind the values.
+      $this->db->bind(':name', $name);
+      $this->db->bind(':userId', $userId);
+      // Execute and store.
+      $value = $this->db->fetchSingle();
+      // Check.
+      if($value){
+        return $value->value;
+      }
+      return FALSE;
+    }
+
+
+    /*
+     * getSettings()
+     *
+     * This function will send all user settings back as separate objects.
+     */
+    public function getSettings($userId = NULL){
+      // check for new settings first and update them.
+      $this->setDefaultSettings();
+      // Set query
+      $this->db->query('SELECT name, value FROM settings WHERE userId = :userId');
+      // Bind the value.
+      if($userId) {
+        $this->db->bind(':userId', $userId);
+      } else {
+        $this->db->bind(':userId', $_SESSION['userId']);
+      }
+      // Store the result in a variable.
+      $settings = $this->db->fetchAll();
+      // Check the variable.
+
+      if($settings){
+        // Get the descriptions of the settings.
+        $i = 0;
+        foreach ($settings as $setting){
+          $setting->description = $this->getSettingDescription($setting->name)->description;
+          $i++;
+        }
+        // Return the settings.
+        return $settings;
+      }
+    }
+
+
+    /*
+     * getSettingDescription()
+     *
+     * This function will fetch the description for the specified setting.
+     */
+    public function getSettingDescription($name){
+      // Set the query.
+      $this->db->query('SELECT description FROM settings_default WHERE name = :name');
+      // Bind the value.
+      $this->db->bind(':name', $name);
+      // Fetch the result.
+      $description = $this->db->fetchSingle();
+      // Check the result and return it.
+      if($description){
+        return $description;
+      }
+      return FALSE;
+    }
+
+
+    /*
+     * updateSettings()
+     *
+     * This function will update the user settings.
+     */
+    public function updateSettings(){
+      $settings = $_POST;
+      // Process all settings.
+      foreach ($settings as $key => $value) {
+        // Set query
+        $this->db->query('UPDATE settings SET value = :value WHERE name = :name AND userId = :userId');
+        // Bind values.
+        $this->db->bind(':value', $value);
+        $this->db->bind(':name', $key);
+        $this->db->bind(':userId', $_SESSION['userId']);
+
+        $this->db->execute();
+      }
+      return TRUE;
+    }
+
+
+    /*
+     * setDefaultSettings()
+     *
+     * This function will set all settings to default, if they do not exist.
+     */
+    public function setDefaultSettings(){
+      // Get all settings from the table.
+      $this->db->query('SELECT name, default_value FROM settings_default');
+      $result = $this->db->fetchAll();
+
+      // Set all settings in an array.
+      $settings = array();
+      foreach ($result as $setting){
+        $settings[$setting->name] = $setting->default_value;
+      }
+
+      // Go through every setting and check accordingly.
+      foreach ($settings as $name => $value){
+        // Check if a record exists.
+        $this->db->query('SELECT name FROM settings WHERE name = :name AND userId = :userId');
+        $this->db->bind(':name', $name);
+        $this->db->bind(':userId', $_SESSION['userId']);
+        $result = $this->db->fetchSingle();
+        // Check the result and then add the setting.
+        if(!$result){
+          // Set query.
+          $this->db->query('INSERT INTO settings (userId, name, value) VALUES (:userId, :name, :value)');
+          $this->db->bind(':userId', $_SESSION['userId']);
+          $this->db->bind(':name', $name);
+          $this->db->bind(':value', $value);
+
+          $this->db->execute();
+        }
+      }
     }
   }
