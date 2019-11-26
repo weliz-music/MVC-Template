@@ -31,4 +31,9 @@
       );
       $this->render('pages/privacy', $data);
     }
+
+    public function acceptCookie() {
+      setcookie(COOKIE_NAME, TRUE, time() + (86400 * 30), '/' );
+      redirect('/');
+    }
   }

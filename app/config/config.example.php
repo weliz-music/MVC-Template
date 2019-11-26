@@ -31,7 +31,7 @@
   define('APP_LOCATION', 'appLocation');
 
   /*
-   * Debug value, this value is used for error checking when developing. Put this on FALSE when you thing you're done
+   * Debug value, this value is used for error checking when developing. Put this on FALSE when you think you're done
    * with developing.
    */
   define('APP_DEBUG', TRUE);
@@ -45,3 +45,20 @@
   define('EMAIL_PORT', 587);
   define('EMAIL_ADDR', 'yourEmail@gmail.com');
   define('EMAIL_PASS', 'emailPass');
+
+  /*
+  * COOKIE constants.
+  *
+  * These constants are used to set and display a cookie-notice when needed.
+  */
+  define('COOKIE_NOTICE_ENABLED', 'true');
+  define('COOKIE_NAME', 'notice');
+  define('COOKIE_MESSAGE', 'This webpage uses cookies to optimize visits from users. You can click <a href="'.URL_ROOT.'/pages/acceptCookie">Accept</a> or just continue on this website.');
+  /*
+   * COOKIE_LOCATION deserves some more explanation. You can put 3 options in here. 'top', 'bottom' or leave it empty.
+   * If you set it to top, it will "hide" the top navigation. So I would not choose this option, unless you want to
+   * use it as a cookie=wall.
+   * If you set it to bottom, it will be on the bottom of the page, period.
+   * If you keep the value empty, it will shift the navigation menu a bit down, to fit the notice there.
+   */
+  define('COOKIE_LOCATION', 'bottom');

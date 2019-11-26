@@ -19,6 +19,13 @@
     <link rel="stylesheet" href="<?=URL_ROOT;?>/public/css/custom.css">
   </head>
   <body>
+
+  <?php if(!isset($_COOKIE[COOKIE_NAME]) && COOKIE_NOTICE_ENABLED == TRUE): ?>
+    <div class="alert alert-warning alert-dismissible fade show m-0 fixed-<?=COOKIE_LOCATION;?>" role="alert">
+      <?=COOKIE_MESSAGE;?>
+    </div>
+  <?php endif;?>
+
   <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
     <div class="container">
       <a class="navbar-brand" href="<?=URL_ROOT;?>/"><?=APP_NAME;?></a>
@@ -32,6 +39,11 @@
           <?=navLink('/pages/privacy', 'Privacy notice', TRUE);?>
         </ul>
         <ul class="navbar-nav ml-auto">
+          <?php if(isset($_SESSION['userLevel'])) : ?>
+            <?php if($_SESSION['userLevel'] == 'admin') : ?>
+              <?=navLink('/admin', 'Admin Dashboard', TRUE);?>
+            <?php endif; ?>
+          <?php endif; ?>
           <?php if(isset($_SESSION['userId'])) : ?>
             <?=navLink('/users', $_SESSION['userName'], TRUE);?>
             <?=navLink('/users/logout', 'Logout');?>
